@@ -3,6 +3,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import React ,{useState, useEffect} from 'react'
 import { db } from '../Firebase';
+import firebase from "firebase/compat/app";
+import "firebase/compat/firestore";
 import LottieView from "lottie-react-native";
 
 
@@ -10,16 +12,50 @@ const BorrowBooks = () => {
   const [input, setInput] = useState("");
   const [errorToggle, setErrorToggle] = useState(false);
   const [addedToggle, setAddedToggle] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const toggleFalse = () => {
     setErrorToggle(false);
     setAddedToggle(false);
   }
   const borrowAction = () => {
-    console.log(input);
-    setAddedToggle(true);
+    setLoading(true);
+    const date = new Date();
+    db.collection("Borrows").add({
+      BookId: input,
+      Borrower: "1222221",  
+      ReturnDate: firebase.firestore.Timestamp.fromDate(date),
+      Status: "Not Returned"
+    }).then(()=>{
+      setLoading(false);
+      setAddedToggle(true);
+      setInput("");
+    }).catch(()=>{
+      setLoading(false);
+      setErrorToggle(true);
+      setInput("");
+    })
+    
   }
   return (
     <View style={{flex:1,width:"100%"  }}>
+       <Modal 
+        animationType="fade"   
+        transparent={true}
+        visible={loading}
+        onRequestClose={() => {
+          
+        }}>
+          <View style={styles.modalBackground}>
+              <LottieView
+                      style ={{ width:300 }}
+                      source= {require("../assets/Loading.json")}
+                      autoPlay={true}
+                      loop={true}
+                />
+          </View>
+                 
+        </Modal>
       <Modal 
         animationType="fade"   
         transparent={true}
@@ -147,10 +183,11 @@ const styles = StyleSheet.create({
   },
   modalBackground:{
     flex:1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.2)",
     justifyContent:"center",
     alignItems:"center"
-  }
+  },
+
 });
 
 export default BorrowBooks

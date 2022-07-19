@@ -7,7 +7,7 @@ const Books = () => {
   const [borrows, setBorrows] = useState([]);
 
   const getBorrows = () => {
-  db.collection('Borrows').get().then(snapshot => {
+  db.collection('Borrows').onSnapshot(snapshot => {
       setBorrows(snapshot.docs.map((doc) => ({...doc.data(), id: doc.id})))
     });
   }
